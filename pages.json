@@ -1,17 +1,36 @@
 {
-	"pages": [{
-		"path": "pages/index/index",
-		"style": {
-			"navigationBarTitleText": "uni-app"
-		}
+	"pages": [
+	{
+	  "path" : "pages/game_selection_rules/game_selection_rules",
+	  "style" : 
+	  {
+	    "navigationBarTitleText" : ""
+	  }
+	},
+	{
+	  "path" : "pages/game_selection_scoring/game_selection_scoring",
+	  "style" : 
+	  {
+	    "navigationBarTitleText" : ""
+	  }
 	}],
 	"globalStyle": {
-		"navigationBarTextStyle": "black",
-		"navigationBarTitleText": "uni-app",
-		"navigationBarBackgroundColor": "#F8F8F8",
-		"backgroundColor": "#F8F8F8",
-		"app-plus": {
-			"background": "#efeff4"
-		}
-	}
+		"navigationBarTextStyle": "white",
+		"navigationBarTitleText": "打牌规则计分助手",
+		"navigationBarBackgroundColor": "#00aa00",
+		"backgroundColor": "#F8F8F8"
+	},
+  "tabBar": {
+    "selectedColor": "#00aa00",
+    "list": [
+      {
+        "pagePath": "pages/game_selection_rules/game_selection_rules",
+        "text": "规则"
+      },
+      {
+        "pagePath": "pages/game_selection_scoring/game_selection_scoring",
+        "text": "计分"
+      }
+    ]
+  }
 }
