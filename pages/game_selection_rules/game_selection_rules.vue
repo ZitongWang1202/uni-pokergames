@@ -1,6 +1,6 @@
 <template>
   <view>
-    
+    rules
   </view>
 </template>
 

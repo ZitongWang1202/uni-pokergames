@@ -3,16 +3,10 @@
 	{
 	  "path" : "pages/game_selection_rules/game_selection_rules",
 	  "style" : 
-	  {
-	    "navigationBarTitleText" : ""
-	  }
 	},
 	{
 	  "path" : "pages/game_selection_scoring/game_selection_scoring",
 	  "style" : 
-	  {
-	    "navigationBarTitleText" : ""
-	  }
 	}],
 	"globalStyle": {
 		"navigationBarTextStyle": "white",
