@@ -2,11 +2,11 @@
 	"pages": [
 	{
 	  "path" : "pages/game_selection_rules/game_selection_rules",
-	  "style" : 
+	  "style" : {}
 	},
 	{
 	  "path" : "pages/game_selection_scoring/game_selection_scoring",
-	  "style" : 
+	  "style" : {}
 	}],
 	"globalStyle": {
 		"navigationBarTextStyle": "white",
