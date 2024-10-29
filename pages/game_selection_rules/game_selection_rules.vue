@@ -1,4 +1,5 @@
 <template>
+  
   <view>
     <view class="container">
       <!-- 左边部分，Flex 布局 -->
@@ -38,12 +39,13 @@
   .container {
     display: flex;
     width: 100%;
-    // height: 100vh;
+    height: 100vh;
     flex-direction: row;
   }
 
   .left {
     width: 100px;
+    flex-shrink: 0;  // 防止左侧被压缩
     display: flex; 
     flex-direction: column;
     background-color: #f5f5f5;
@@ -64,18 +66,21 @@
     flex: 1;
     display: grid;
     grid-template-columns: repeat(3, 1fr);    // 3列等宽
+    grid-template-rows: 100px 100px 100px;
+    box-sizing: border-box;
 }
 
 .grid-item {
-  background-color: #fff;
-  border: 1px solid #ddd;
-  min-height: 100px;  // 设置最小高度确保格子形状
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  line-height: 100px;
+  text-align: center;
+  border: 1px solid #ccc;
+  box-sizing: border-box;
 }
 
+
+// 第一个格子占据两列且高度是宽度的一半
 .grid-item:first-child {
-  grid-column: 1 / 3;  // 从第1列开始，到第3列结束（占2格）
+  grid-column: span 2;
 }
+
 </style>
