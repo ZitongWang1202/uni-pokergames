@@ -1,23 +1,34 @@
 {
-	"pages": [
-	{
-	  "path" : "pages/game_selection_rules/game_selection_rules",
-	  "style" : {}
-	},
-	{
-	  "path" : "pages/game_selection_scoring/game_selection_scoring",
-	  "style" : {}
-	}],
-	"globalStyle": {
-		"navigationBarTextStyle": "white",
-		"navigationBarTitleText": "打牌规则计分助手",
-		"navigationBarBackgroundColor": "#00aa00",
-		"backgroundColor": "#F8F8F8"
-	},
+  "pages": [{
+      "path": "pages/game_selection_rules/game_selection_rules",
+      "style": {}
+    },
+    {
+      "path": "pages/game_selection_scoring/game_selection_scoring",
+      "style": {}
+    }
+  ],
+  "subPackages": [
+    {
+      "root": "subpkg",
+      "pages": [{
+        "path" : "rules/rules",
+        "style" : 
+        {
+          "navigationBarTitleText" : "规则详情"
+        }
+      }]
+    }
+  ],
+  "globalStyle": {
+    "navigationBarTextStyle": "white",
+    "navigationBarTitleText": "打牌规则计分助手",
+    "navigationBarBackgroundColor": "#00aa00",
+    "backgroundColor": "#F8F8F8"
+  },
   "tabBar": {
     "selectedColor": "#00aa00",
-    "list": [
-      {
+    "list": [{
         "pagePath": "pages/game_selection_rules/game_selection_rules",
         "text": "规则"
       },

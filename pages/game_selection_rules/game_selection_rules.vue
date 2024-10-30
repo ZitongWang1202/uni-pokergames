@@ -1,86 +1,140 @@
 <template>
-  
+
   <view>
     <view class="container">
       <!-- 左边部分，Flex 布局 -->
       <view class="left">
-        <view class="number-of-player">三人游戏</view>
-        <view class="number-of-player">四人游戏</view>
-        <view class="number-of-player">五人游戏</view>
-        <view class="number-of-player">六人游戏</view>
+        <view v-for="(item, index) in playerOptions" :key="index"
+          :class="['number-of-player', { active: currentIndex === index }]" 
+          @click="switchPlayer(index)"
+          >
+          {{ item.text }}
+        </view>
       </view>
-    
+
       <!-- 右边部分，Grid 布局 -->
       <view class="right">
-        <view class="grid-item">Long Rectangle 1</view>
-        <view class="grid-item">Square 2</view>
-        <view class="grid-item">Square 3</view>
-        <view class="grid-item">Square 4</view>
-        <view class="grid-item">Square 5</view>
-        <view class="grid-item">Square 6</view>
-        <view class="grid-item">Square 7</view>
-        <view class="grid-item">Square 8</view>
+        <view v-for="(item, index) in currentGridItems" :key="index"
+          :class="['grid-item', { 'span-two': index === 0 }]"
+          @click="navigateToRules(item)">
+          {{ item.name }}
+        </view>
       </view>
     </view>
   </view>
 </template>
 
 <script>
-  export default {
-    data() {
-      return {
-
-      };
+export default {
+  data() {
+    return {
+      currentIndex: 0,
+      playerOptions: [
+        {
+          text: '三人游戏',
+          gridItems: [
+            { name: '玩法1', type: '3', ruleId: 'rule1' },
+            { name: '玩法2', type: '3', ruleId: 'rule2' }
+          ]
+        },
+        {
+          text: '四人游戏',
+          gridItems: [
+            { name: '玩法1', type: '4', ruleId: 'rule3' },
+            { name: '玩法2', type: '4', ruleId: 'rule4' },
+            { name: '玩法3', type: '4', ruleId: 'rule5' }
+          ]
+        },
+        {
+          text: '五人游戏',
+          gridItems: [
+            { name: '玩法1', type: '5', ruleId: 'rule6' },
+            { name: '玩法2', type: '5', ruleId: 'rule7' },
+            { name: '玩法3', type: '5', ruleId: 'rule8' },
+            { name: '玩法4', type: '5', ruleId: 'rule9' }
+          ]
+        },
+        {
+          text: '六人游戏',
+          gridItems: [
+            { name: '玩法1', type: '6', ruleId: 'rule10' },
+            { name: '玩法2', type: '6', ruleId: 'rule11' },
+            { name: '玩法3', type: '6', ruleId: 'rule12' },
+            { name: '玩法4', type: '6', ruleId: 'rule13' },
+            { name: '玩法5', type: '6', ruleId: 'rule14' }
+          ]
+        }
+      ]
+    };
+  },
+  computed: {
+    currentGridItems() {
+      return this.playerOptions[this.currentIndex].gridItems;
+    }
+  },
+  methods: {
+    switchPlayer(index) {
+      this.currentIndex = index;
+    },
+    navigateToRules(item) {
+      uni.navigateTo({
+        url: `/subpkg/rules/rules?type=${item.type}&ruleId=${item.ruleId}`
+      });
     }
   }
+}
 </script>
 
 <style lang="scss">
-  .container {
-    display: flex;
-    width: 100%;
-    height: 100vh;
-    flex-direction: row;
-  }
+.container {
+  display: flex;
+  width: 100%;
+  height: 100vh;
+  flex-direction: row;
+}
 
-  .left {
-    width: 100px;
-    flex-shrink: 0;  // 防止左侧被压缩
-    display: flex; 
-    flex-direction: column;
-    background-color: #f5f5f5;
-    border-right: 1px solid #ccc;
-    box-sizing: border-box;
-  }
+.left {
+  width: 100px;
+  flex-shrink: 0; // 防止左侧被压缩
+  display: flex;
+  flex-direction: column;
+  background-color: #f5f5f5;
+  border-right: 1px solid #ccc;
+  box-sizing: border-box;
+}
 
-  .number-of-player {
-    height: 60px;
-    line-height: 60px;
-    text-align: center;
-    font-size: 14px;
-    border-bottom: 1px solid #ccc;
-    box-sizing: border-box;
+.number-of-player {
+  height: 60px;
+  line-height: 60px;
+  text-align: center;
+  font-size: 14px;
+  border-bottom: 1px solid #ccc;
+  box-sizing: border-box;
+  cursor: pointer;
+
+  &.active {
+    background-color: #e0e0e0; // 选中状态的背景色
+    font-weight: bold;
   }
-  
+}
+
 .right {
-    flex: 1;
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);    // 3列等宽
-    grid-template-rows: 100px 100px 100px;
-    box-sizing: border-box;
+  flex: 1;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr); // 3列等宽
+  grid-template-rows: 100px 100px 100px;
+  box-sizing: border-box;
 }
 
 .grid-item {
   line-height: 100px;
   text-align: center;
-  border: 1px solid #ccc;
+  border-right: 1px solid #ccc;
+  border-bottom: 1px solid #ccc;
   box-sizing: border-box;
+
+  &.span-two {
+    grid-column: span 2;
+  }
 }
-
-
-// 第一个格子占据两列且高度是宽度的一半
-.grid-item:first-child {
-  grid-column: span 2;
-}
-
 </style>
