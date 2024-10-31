@@ -17,6 +17,13 @@
         {
           "navigationBarTitleText" : "规则详情"
         }
+      },
+      {
+        "path" : "scoring/scoring",
+        "style" : 
+        {
+          "navigationBarTitleText" : ""
+        }
       }]
     }
   ],
