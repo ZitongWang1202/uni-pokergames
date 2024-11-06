@@ -33,22 +33,22 @@ export default {
         {
           text: '三人游戏',
           gridItems: [
-            { name: '玩法1', type: '3', ruleId: 'rule1' },
+            { name: '斗地主', type: '3', ruleId: 'rule1' },
             { name: '玩法2', type: '3', ruleId: 'rule2' }
           ]
         },
         {
           text: '四人游戏',
           gridItems: [
-            { name: '玩法1', type: '4', ruleId: 'rule3' },
-            { name: '玩法2', type: '4', ruleId: 'rule4' },
-            { name: '玩法3', type: '4', ruleId: 'rule5' }
+            { name: '掼蛋', type: '4', ruleId: 'rule3' },
+            { name: '升级', type: '4', ruleId: 'rule4' },
+            { name: '山东升级', type: '4', ruleId: 'rule5' }
           ]
         },
         {
           text: '五人游戏',
           gridItems: [
-            { name: '玩法1', type: '5', ruleId: 'rule6' },
+            { name: '保皇', type: '5', ruleId: 'rule6' },
             { name: '玩法2', type: '5', ruleId: 'rule7' },
             { name: '玩法3', type: '5', ruleId: 'rule8' },
             { name: '玩法4', type: '5', ruleId: 'rule9' }
@@ -57,9 +57,9 @@ export default {
         {
           text: '六人游戏',
           gridItems: [
-            { name: '玩法1', type: '6', ruleId: 'rule10' },
-            { name: '玩法2', type: '6', ruleId: 'rule11' },
-            { name: '玩法3', type: '6', ruleId: 'rule12' },
+            { name: '够级', type: '6', ruleId: 'rule10' },
+            { name: '兰里拖拉机', type: '6', ruleId: 'rule11' },
+            { name: '干瞪眼', type: '6', ruleId: 'rule12' },
             { name: '玩法4', type: '6', ruleId: 'rule13' },
             { name: '玩法5', type: '6', ruleId: 'rule14' }
           ]

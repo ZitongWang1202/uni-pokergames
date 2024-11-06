@@ -8,14 +8,18 @@
         <view class="table-header">
           <view class="header-cell round-col">轮次</view>
           <view v-for="(player, index) in players" :key="player.id" class="header-cell">
-            {{ player.name }}
-            <text class="delete-player" @click.stop="deletePlayer(index)">×</text>
+            <template v-if="editingIndex !== index">
+              <text @click="startEdit(index)">{{ player.name }}</text>
+              <text class="delete-player" @click.stop="confirmDeletePlayer(index)">×</text>
+            </template>
+            <input v-else class="name-input" v-model="players[index].name" @blur="finishEdit" @confirm="finishEdit"
+              focus />
           </view>
         </view>
 
         <!-- 分数行 -->
         <view v-for="(_, rowIndex) in scores" :key="rowIndex" class="table-row">
-          <view class="cell round-col">第{{ rowIndex + 1 }}轮</view>
+          <view class="cell round-col" @click="showRowOptions(rowIndex)">第{{ rowIndex + 1 }}轮</view>
           <view v-for="(_, colIndex) in players" :key="colIndex" class="cell">
             <input type="number" v-model="scores[rowIndex][colIndex]" @input="calculateTotal" />
           </view>
@@ -37,7 +41,7 @@
         添加玩家
       </button>
       <button class="btn" @click="addRow">添加一行</button>
-      <button class="btn" @click="addFiveRows">添加五行</button>
+      <button class="btn" @click="addThreeRows">添加三行</button>
     </view>
   </view>
 </template>
@@ -52,7 +56,8 @@ export default {
       scores: [[]],
       maxPlayers: 6,
       scoringRules: '',
-      type: '' // 游戏类型
+      type: '', // 游戏类型
+      editingIndex: -1,
     };
   },
   computed: {
@@ -65,6 +70,14 @@ export default {
     }
   },
   methods: {
+    startEdit(index) {
+      this.editingIndex = index
+    },
+
+    finishEdit() {
+      this.editingIndex = -1
+    },
+
     addPlayer() {
       if (this.players.length < this.maxPlayers) {
         const newPlayerNum = this.players.length + 1;
@@ -90,6 +103,16 @@ export default {
         });
       }
     },
+    confirmDeletePlayer(index) {
+      uni.showModal({
+        content: '确定要删除该玩家吗？',
+        success: (res) => {
+          if (res.confirm) {
+            this.deletePlayer(index)
+          }
+        }
+      });
+    },
     deletePlayer(index) {
       if (this.players.length > 0) {
         this.players.splice(index, 1);
@@ -101,8 +124,22 @@ export default {
       const newRow = new Array(Math.max(1, this.players.length)).fill('');
       this.scores.push(newRow);
     },
-    addFiveRows() {
-      for (let i = 0; i < 5; i++) {
+    showRowOptions(rowIndex) {
+      uni.showActionSheet({
+        itemList: ['删除'],
+        itemColor: '#ff4444',
+        success: (res) => {
+          if (res.tapIndex === 0) {
+            this.confirmDeleteRow(rowIndex)
+          }
+        }
+      })
+    },
+    confirmDeleteRow(rowIndex) {
+      this.scores.splice(rowIndex, 1);
+    },
+    addThreeRows() {
+      for (let i = 0; i < 3; i++) {
         this.addRow()
       }
     },
@@ -145,6 +182,7 @@ export default {
       // 解决scroll-view中向右滚动border渲染不全的问题
       min-width: 100%;
       width: fit-content;
+      
 
       .cell,
       .header-cell {
@@ -158,6 +196,29 @@ export default {
           width: 100%;
           text-align: center;
         }
+      }
+
+      .header-cell {
+        position: relative;
+        height: 70rpx;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+
+      .name-input {
+        position: absolute;
+        left: 50%;
+        top: 50%;
+        transform: translate(-50%, -50%);
+        width: 80%;
+        height: 60rpx;
+        text-align: center;
+        border: 1px solid #ddd;
+        border-radius: 4rpx;
+        background: #fff;
+        box-sizing: border-box;
+        font-size: inherit;
       }
 
       // 第一列固定宽度，不参与flex布局
@@ -174,9 +235,11 @@ export default {
       z-index: 1;
 
       .delete-player {
-        margin-left: 10rpx;
         color: #ff4444;
-        padding: 0 10rpx;
+        position: absolute;
+        right: 10rpx;
+        top: 50%;
+        transform: translateY(-50%);
       }
     }
 
