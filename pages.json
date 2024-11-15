@@ -1,30 +1,35 @@
 {
-  "pages": [{
+  "pages": [
+    {
       "path": "pages/game_selection_rules/game_selection_rules",
       "style": {}
     },
     {
       "path": "pages/game_selection_scoring/game_selection_scoring",
       "style": {}
+    },
+    {
+      "path": "pages/contact_me/contact_me",
+      "style": {}
     }
   ],
   "subPackages": [
     {
       "root": "subpkg",
-      "pages": [{
-        "path" : "rules/rules",
-        "style" : 
+      "pages": [
         {
-          "navigationBarTitleText" : "规则详情"
-        }
-      },
-      {
-        "path" : "scoring/scoring",
-        "style" : 
+          "path": "rules/rules",
+          "style": {
+            "navigationBarTitleText": "规则详情"
+          }
+        },
         {
-          "navigationBarTitleText" : ""
+          "path": "scoring/scoring",
+          "style": {
+            "navigationBarTitleText": "计分助手"
+          }
         }
-      }]
+      ]
     }
   ],
   "globalStyle": {
@@ -35,13 +40,24 @@
   },
   "tabBar": {
     "selectedColor": "#00aa00",
-    "list": [{
+    "list": [
+      {
         "pagePath": "pages/game_selection_rules/game_selection_rules",
-        "text": "规则"
+        "text": "游戏规则",
+        "iconPath": "static/tab_icons/game.png",
+        "selectedIconPath": "static/tab_icons/game_selected.png"
       },
       {
         "pagePath": "pages/game_selection_scoring/game_selection_scoring",
-        "text": "计分"
+        "text": "游戏计分",
+        "iconPath": "static/tab_icons/score.png",
+        "selectedIconPath": "static/tab_icons/score_selected.png"
+      },
+      {
+        "pagePath": "pages/contact_me/contact_me",
+        "text": "联系我们",
+        "iconPath": "static/tab_icons/mail.png",
+        "selectedIconPath": "static/tab_icons/mail_selected.png"
       }
     ]
   }

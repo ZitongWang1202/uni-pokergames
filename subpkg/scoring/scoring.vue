@@ -55,8 +55,9 @@ export default {
       players: [],
       scores: [[]],
       maxPlayers: 6,
+      type: '',
+      ruleId: '',
       scoringRules: '',
-      type: '', // 游戏类型
       editingIndex: -1,
     };
   },
@@ -149,13 +150,16 @@ export default {
       if (this.scores.length === 0) {
         this.scores.push([]);
       }
-      // 添加第一个玩家
-      this.addPlayer();
+      // 添加对应游戏人数的玩家
+      for (let i = 0; i < this.type; i++) {
+        this.addPlayer();
+      }
     }
   },
 
   onLoad(options) {
     this.type = options.type
+    this.ruleId = options.ruleId;
     // 从规则数据中获取计分规则
     if (ruleData[this.type] && ruleData[this.type].scoring) {
       this.scoringRules = ruleData[this.type].scoring.content
