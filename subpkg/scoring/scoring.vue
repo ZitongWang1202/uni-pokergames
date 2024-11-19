@@ -35,6 +35,34 @@
       </view>
     </scroll-view>
 
+    <!-- 计数器 -->
+    <view class="cell counter-container" v-if="scoringRules.counters">
+      <view v-for="(counter, idx) in scoringRules.counters" :key="idx" class="counter-item"
+        :class="{ 'even-row': idx % 2 === 0 }">
+        <text class="counter-name">{{ counter.name }}</text>
+        <!-- 布尔类型计数器 -->
+        <view v-if="counter.type === 'boolean'" class="boolean-counter" :class="{ active: counterValues[idx] }"
+          @tap="toggleCounter(idx)">
+          {{ counterValues[idx] ? '是' : '否' }}
+        </view>
+        <!-- 数值类型计数器 -->
+        <view v-else class="number-counter">
+          <text class="counter-btn" @tap="updateCounter(idx, -1)">-</text>
+          <text class="counter-value">{{ counterValues[idx] }}</text>
+          <text class="counter-btn" @tap="updateCounter(idx, 1)">+</text>
+        </view>
+      </view>
+    </view>
+
+
+    <!-- 在计数器后添加规则说明部分 -->
+    <view class="rules-section" v-if="scoringRules.sections">
+      <view v-for="(section, index) in scoringSections" :key="index" class="rule-item">
+        <view v-if="section.type === 'title'" class="rule-title">{{ section.content }}</view>
+        <view v-else-if="section.type === 'text'" class="rule-content">{{ section.content }}</view>
+      </view>
+    </view>
+
     <!-- 按钮组 -->
     <view class="button-group">
       <button class="btn add-player-btn" @click="addPlayer" :disabled="players.length >= maxPlayers">
@@ -59,6 +87,7 @@ export default {
       ruleId: '',
       scoringRules: '',
       editingIndex: -1,
+      counterValues: [],
     };
   },
   computed: {
@@ -154,13 +183,29 @@ export default {
       for (let i = 0; i < this.type; i++) {
         this.addPlayer();
       }
-    }
+      this.initCounters();
+      this.scoringSections = this.scoringRules.sections?.filter(section => section.isScoring) || [];
+    },
+
+    initCounters() {
+      this.counterValues = this.scoringRules.counters.map(counter =>
+        counter.type === 'boolean' ? false : 0
+      );
+    },
+
+    toggleCounter(index) {
+      this.$set(this.counterValues, index, !this.counterValues[index]);
+    },
+
+    updateCounter(index, delta) {
+      const newValue = Math.max(0, (this.counterValues[index] || 0) + delta);
+      this.$set(this.counterValues, index, newValue);
+    },
   },
 
   onLoad(options) {
     this.type = options.type
     this.ruleId = options.ruleId;
-    // 从规则数据中获取计分规则
     if (ruleData[this.type] && ruleData[this.type].scoring) {
       this.scoringRules = ruleData[this.type].scoring.content
     }
@@ -186,7 +231,7 @@ export default {
       // 解决scroll-view中向右滚动border渲染不全的问题
       min-width: 100%;
       width: fit-content;
-      
+
 
       .cell,
       .header-cell {
@@ -279,6 +324,69 @@ export default {
 
     &:disabled {
       background-color: #ccc;
+    }
+  }
+}
+
+.counter-row {
+  display: flex;
+  border-bottom: 1px solid #ddd;
+  background-color: #f8f8f8;
+  
+  .counter-container {
+    display: flex;
+    flex-wrap: wrap;
+    padding: 10rpx;
+    
+    .counter-item {
+      width: 50%;
+      display: flex;
+      align-items: center;
+      padding: 10rpx;
+      box-sizing: border-box;
+      
+      &.even-row {
+        border-right: 1px solid #eee;
+      }
+      
+      .counter-name {
+        flex: 1;
+        padding-right: 10rpx;
+      }
+      
+      .boolean-counter {
+        width: 80rpx;
+        height: 50rpx;
+        line-height: 50rpx;
+        text-align: center;
+        background-color: #ddd;
+        border-radius: 25rpx;
+        
+        &.active {
+          background-color: #007AFF;
+          color: white;
+        }
+      }
+      
+      .number-counter {
+        display: flex;
+        align-items: center;
+        
+        .counter-btn {
+          width: 50rpx;
+          height: 50rpx;
+          line-height: 50rpx;
+          text-align: center;
+          background-color: #007AFF;
+          color: white;
+          border-radius: 25rpx;
+        }
+        
+        .counter-value {
+          width: 60rpx;
+          text-align: center;
+        }
+      }
     }
   }
 }

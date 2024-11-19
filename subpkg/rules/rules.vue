@@ -48,14 +48,27 @@
             }">
               <!-- 图片格 -->
               <template v-if="cellIndex === 1 && row.type === 'normal'">
-                <view class="card-container">
-                  <view class="card-images">
-                    <image v-for="(imgSrc, imgIndex) in cell" :key="imgIndex" :src="imgSrc" class="card-image"
-                      mode="aspectFit" />
+                <view class="card-groups">
+                  <view v-for="(group, groupIndex) in cell" :key="groupIndex">
+                    <view class="images-wrapper">
+                      <image v-for="(imgSrc, imgIndex) in group.imgs" 
+                             :key="imgIndex" 
+                             :src="imgSrc" 
+                             :style="{width: '60rpx', height: '90rpx'}" />
+                    </view>
+                    <text class="desc-text">{{ group.text }}</text>
                   </view>
                 </view>
               </template>
-              <!-- 文字格 -->
+              <!-- 说明格 -->
+              <template v-else-if="cellIndex === 3">
+                <view class="cell-list">
+                  <view v-for="(item, i) in cell" :key="i" class="cell-list-item">
+                    {{ item }}
+                  </view>
+                </view>
+              </template>
+              <!-- 其他格 -->
               <template v-else>
                 {{ cell }}
               </template>
@@ -166,10 +179,7 @@ export default {
 .row {
   display: flex;
   border-bottom: 1rpx solid #ddd;
-
-  &:last-child {
-    border-bottom: none;
-  }
+  align-items: stretch;
 }
 
 .header-row {
@@ -180,29 +190,29 @@ export default {
 .cell {
   min-height: 120rpx;
   display: flex;
-  align-items: center;
-  justify-content: center;
-  border-right: 1rpx solid #ddd;
+  align-items: flex-start;
   padding: 10rpx;
   text-align: center;
+  border-right: 1rpx solid #ddd;
+  word-break: break-all;
+  word-wrap: break-word;
+  white-space: normal;
+  flex-shrink: 0;
 
-  &:last-child {
-    border-right: none;
+  &.cell-small {
+    flex: 1;
+    width: 0;
   }
-}
 
-.cell-small {
-  flex: 1;
-}
+  &.cell-medium {
+    flex: 2;
+    width: 0;
+  }
 
-.cell-medium {
-  flex: 2;
-}
-
-.cell-large {
-  flex: 4;
-  text-align: left;
-  padding: 20rpx;
+  &.cell-large {
+    flex: 4;
+    width: 0;
+  }
 }
 
 .card-container {
@@ -324,5 +334,54 @@ export default {
 .bottom-space {
   height: 120rpx;
   width: 100%;
+}
+
+.cell-list {
+  width: 100%;
+  text-align: left;
+  
+  .cell-list-item {
+    padding: 4rpx 0;
+    line-height: 1.5;
+    white-space: normal;
+    word-break: break-all;
+  }
+}
+
+.card-groups {
+  width: 100%;
+  
+  view {
+    margin-bottom: 10rpx;
+    
+    &:last-child {
+      margin-bottom: 0;
+    }
+  }
+  
+  .images-wrapper {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: flex-start;
+    justify-content: flex-start;
+    width: 100%;
+    
+    image {
+      flex-shrink: 0;
+      display: block;
+    }
+  }
+  
+  .desc-text {
+    display: block;
+    font-size: 24rpx;
+    color: #666;
+    line-height: 1.2;
+    margin-top: 2rpx;
+    text-align: left;
+    word-break: break-all;
+    word-wrap: break-word;
+    white-space: normal;
+  }
 }
 </style>
