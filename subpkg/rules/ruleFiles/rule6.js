@@ -2,26 +2,12 @@ export const rule6 = {
     title: '四人斗地主',
     sections: [
         {
-            type: 'title',
-            content: ''
+            type: 'text',
+            content: '四人斗地主需要使用2组共108张扑克牌，牌型规则相较于三人斗地主有一定改动。'
         },
         {
             type: 'text',
-            content: ''
-        },
-        {
-            type: 'table',
-            headers: ['牌型', '例子', '最长或最大情况', '说明'],
-            rows: [
-                {
-                    type: 'no-img',
-                    data: ['过牌', '—', '—', '—']
-                },
-                {
-                    type: 'normal',
-                    data: ['单牌', '../../static/pokers/2C.png', '—', '—']
-                },
-            ]
+            content: '此时“地主”庄家为1人，“农民”防守方为3人；初始发牌为每人25张，底牌为8张；此外无三张带单牌的牌型；火箭变成四张王，一对Joker变成普通对子；炸弹大小优先根据长度进行比较。'
         },
     ]
 }

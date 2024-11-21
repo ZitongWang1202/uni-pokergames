@@ -43,8 +43,8 @@ export default {
           gridItems: [
             { name: '掼蛋', type: '4', ruleId: 'rule4' },
             { name: '升级', type: '4', ruleId: 'rule5' },
-            { name: '山东升级', type: '4', ruleId: 'rule6' },
-            { name: '四人斗地主', type: '4', ruleId: 'rule7' }
+            { name: '四人斗地主', type: '4', ruleId: 'rule6' },
+            { name: '山东升级', type: '4', ruleId: 'rule7' }
           ]
         },
         {

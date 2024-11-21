@@ -2,8 +2,8 @@
   <view class="scoring-container">
     <scroll-view class="table-container" scroll-x scroll-y>
       <!-- 为了解决scroll-view中flex不生效，新增一层view -->
-      <view class="table">
 
+      <view class="table">
         <!-- 表头 -->
         <view class="table-header">
           <view class="header-cell round-col">轮次</view>
@@ -33,35 +33,41 @@
           </view>
         </view>
       </view>
+
+      
+      <!-- 计数器和规则区域 -->
+      <view class="counters-and-rules" v-if="scoringRules.counters && scoringRules.counters.length">
+        <!-- 计数器部分 -->
+        <view class="counters-grid">
+          <view v-for="(counter, index) in scoringRules.counters" :key="index" class="counter-item">
+            <text>{{ counter.name }}</text>
+            <template v-if="counter.type === 'boolean'">
+              <switch :checked="counter.value" @change="onCounterChange(index, $event)" />
+            </template>
+            <template v-else-if="counter.type === 'count'">
+              <view class="counter-controls">
+                <button @click="decrementCounter(index)">-</button>
+                <text>{{ counter.value }}</text>
+                <button @click="incrementCounter(index)">+</button>
+              </view>
+            </template>
+          </view>
+        </view>
+
+
+        <view class="scoring-rules">
+          <block v-for="(section, index) in scoringRules.content" :key="index">
+            <template v-if="section.isScoring">
+              <view class="rule-title" v-if="section.type === 'title'">{{ section.content }}</view>
+              <view class="rule-text" v-if="section.type === 'text'">{{ section.content }}</view>
+            </template>
+          </block>
+        </view>
+      </view>
     </scroll-view>
 
-    <!-- 计数器 -->
-    <view class="cell counter-container" v-if="scoringRules.counters">
-      <view v-for="(counter, idx) in scoringRules.counters" :key="idx" class="counter-item"
-        :class="{ 'even-row': idx % 2 === 0 }">
-        <text class="counter-name">{{ counter.name }}</text>
-        <!-- 布尔类型计数器 -->
-        <view v-if="counter.type === 'boolean'" class="boolean-counter" :class="{ active: counterValues[idx] }"
-          @tap="toggleCounter(idx)">
-          {{ counterValues[idx] ? '是' : '否' }}
-        </view>
-        <!-- 数值类型计数器 -->
-        <view v-else class="number-counter">
-          <text class="counter-btn" @tap="updateCounter(idx, -1)">-</text>
-          <text class="counter-value">{{ counterValues[idx] }}</text>
-          <text class="counter-btn" @tap="updateCounter(idx, 1)">+</text>
-        </view>
-      </view>
-    </view>
 
 
-    <!-- 在计数器后添加规则说明部分 -->
-    <view class="rules-section" v-if="scoringRules.sections">
-      <view v-for="(section, index) in scoringSections" :key="index" class="rule-item">
-        <view v-if="section.type === 'title'" class="rule-title">{{ section.content }}</view>
-        <view v-else-if="section.type === 'text'" class="rule-content">{{ section.content }}</view>
-      </view>
-    </view>
 
     <!-- 按钮组 -->
     <view class="button-group">
@@ -85,9 +91,11 @@ export default {
       maxPlayers: 6,
       type: '',
       ruleId: '',
-      scoringRules: '',
+      scoringRules: {
+        content: [],
+        counters: []
+      },
       editingIndex: -1,
-      counterValues: [],
     };
   },
   computed: {
@@ -106,6 +114,20 @@ export default {
 
     finishEdit() {
       this.editingIndex = -1
+    },
+
+    onCounterChange(index, event) {
+      this.scoringRules.counters[index].value = event.detail.value;
+    },
+
+    incrementCounter(index) {
+      this.scoringRules.counters[index].value++;
+    },
+
+    decrementCounter(index) {
+      if (this.scoringRules.counters[index].value > 0) {
+        this.scoringRules.counters[index].value--;
+      }
     },
 
     addPlayer() {
@@ -133,6 +155,7 @@ export default {
         });
       }
     },
+
     confirmDeletePlayer(index) {
       uni.showModal({
         content: '确定要删除该玩家吗？',
@@ -143,6 +166,7 @@ export default {
         }
       });
     },
+
     deletePlayer(index) {
       if (this.players.length > 0) {
         this.players.splice(index, 1);
@@ -150,10 +174,12 @@ export default {
         this.scores.forEach(row => row.splice(index, 1));
       }
     },
+
     addRow() {
       const newRow = new Array(Math.max(1, this.players.length)).fill('');
       this.scores.push(newRow);
     },
+
     showRowOptions(rowIndex) {
       uni.showActionSheet({
         itemList: ['删除'],
@@ -165,9 +191,11 @@ export default {
         }
       })
     },
+
     confirmDeleteRow(rowIndex) {
       this.scores.splice(rowIndex, 1);
     },
+
     addThreeRows() {
       for (let i = 0; i < 3; i++) {
         this.addRow()
@@ -180,35 +208,27 @@ export default {
         this.scores.push([]);
       }
       // 添加对应游戏人数的玩家
-      for (let i = 0; i < this.type; i++) {
+      if (this.type) {
+        for (let i = 0; i < this.type; i++) {
+          this.addPlayer();
+        }
+      } else {
         this.addPlayer();
       }
-      this.initCounters();
-      this.scoringSections = this.scoringRules.sections?.filter(section => section.isScoring) || [];
-    },
 
-    initCounters() {
-      this.counterValues = this.scoringRules.counters.map(counter =>
-        counter.type === 'boolean' ? false : 0
-      );
-    },
-
-    toggleCounter(index) {
-      this.$set(this.counterValues, index, !this.counterValues[index]);
-    },
-
-    updateCounter(index, delta) {
-      const newValue = Math.max(0, (this.counterValues[index] || 0) + delta);
-      this.$set(this.counterValues, index, newValue);
+      const gameRule = ruleData[this.type][this.ruleId];
+      if (gameRule) {
+        this.scoringRules = {
+          content: gameRule.sections || [],
+          counters: gameRule.counters || []
+        };
+      }
     },
   },
 
   onLoad(options) {
-    this.type = options.type
+    this.type = options.type;
     this.ruleId = options.ruleId;
-    if (ruleData[this.type] && ruleData[this.type].scoring) {
-      this.scoringRules = ruleData[this.type].scoring.content
-    }
     this.initData();
   }
 }
@@ -216,85 +236,201 @@ export default {
 
 <style lang="scss">
 .scoring-container {
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+}
+
+.table-container {
+  flex: none;
+  height: 50vh; // 表格区域占据上半部分
+  overflow: auto;
+}
+
+.counters-and-rules {
   padding: 20rpx;
+  background-color: #fff;
+  width: 100%;
 
-  .table {
-    width: 100%;
-    height: calc(100vh - 200rpx); // 留出底部按钮的空间
-    border: 1px solid #ddd;
-    overflow: auto;
+  .counters-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 20rpx;
+    margin-bottom: 30rpx;
+  }
 
-    .table-header,
-    .table-row {
+  .counter-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 20rpx;
+    background-color: #f8f8f8;
+    border-radius: 10rpx;
+
+    .counter-controls {
       display: flex;
-      border-bottom: 1px solid #ddd;
-      // 解决scroll-view中向右滚动border渲染不全的问题
-      min-width: 100%;
-      width: fit-content;
+      align-items: center;
+      gap: 20rpx;
 
-
-      .cell,
-      .header-cell {
-        flex: 1;
-        padding: 20rpx;
-        text-align: center;
-        border-right: 1px solid #ddd;
-        min-width: 120rpx; // 每列的最小宽度
-
-        input {
-          width: 100%;
-          text-align: center;
-        }
-      }
-
-      .header-cell {
-        position: relative;
-        height: 70rpx;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-      }
-
-      .name-input {
-        position: absolute;
-        left: 50%;
-        top: 50%;
-        transform: translate(-50%, -50%);
-        width: 80%;
+      button {
+        min-width: 60rpx;
         height: 60rpx;
-        text-align: center;
-        border: 1px solid #ddd;
-        border-radius: 4rpx;
-        background: #fff;
-        box-sizing: border-box;
-        font-size: inherit;
-      }
-
-      // 第一列固定宽度，不参与flex布局
-      .round-col {
-        width: 150rpx;
-        flex: none;
+        line-height: 60rpx;
+        padding: 0;
+        margin: 0;
+        font-size: 24rpx;
       }
     }
+  }
 
-    .table-header {
-      background-color: #f5f5f5;
-      position: sticky;
-      top: 0;
-      z-index: 1;
+  .scoring-rules {
+    border-top: 1px solid #eee;
+    padding-top: 20rpx;
 
-      .delete-player {
-        color: #ff4444;
-        position: absolute;
-        right: 10rpx;
-        top: 50%;
-        transform: translateY(-50%);
-      }
-    }
-
-    .total-row {
-      background-color: #f8f8f8;
+    .rule-title {
+      font-size: 32rpx;
       font-weight: bold;
+      color: #333;
+      margin: 20rpx 0;
+    }
+
+    .rule-text {
+      font-size: 28rpx;
+      color: #666;
+      line-height: 1.6;
+      margin: 10rpx 0;
+      text-align: justify;
+      white-space: pre-wrap;
+    }
+  }
+}
+
+.button-group {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  padding: 20rpx;
+  display: flex;
+  justify-content: space-around;
+  background-color: #fff;
+  box-shadow: 0 -2rpx 10rpx rgba(0, 0, 0, 0.1);
+  z-index: 999;
+}
+
+.table {
+  width: 100%;
+  height: fit-content;
+  border: 1px solid #ddd;
+  overflow: auto;
+
+  .table-header,
+  .table-row {
+    display: flex;
+    border-bottom: 1px solid #ddd;
+    // 解决scroll-view中向右滚动border渲染不全的问题
+    min-width: 100%;
+    width: fit-content;
+
+
+    .cell,
+    .header-cell {
+      flex: 1;
+      padding: 20rpx;
+      text-align: center;
+      border-right: 1px solid #ddd;
+      min-width: 120rpx; // 每列的最小宽度
+
+      input {
+        width: 100%;
+        text-align: center;
+      }
+    }
+
+    .header-cell {
+      position: relative;
+      height: 70rpx;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .name-input {
+      position: absolute;
+      left: 50%;
+      top: 50%;
+      transform: translate(-50%, -50%);
+      width: 80%;
+      height: 60rpx;
+      text-align: center;
+      border: 1px solid #ddd;
+      border-radius: 4rpx;
+      background: #fff;
+      box-sizing: border-box;
+      font-size: inherit;
+    }
+
+    // 第一列固定宽度，不参与flex布局
+    .round-col {
+      width: 150rpx;
+      flex: none;
+    }
+  }
+
+  .table-header {
+    background-color: #f5f5f5;
+    position: sticky;
+    top: 0;
+    z-index: 1;
+
+    .delete-player {
+      color: #ff4444;
+      position: absolute;
+      right: 10rpx;
+      top: 50%;
+      transform: translateY(-50%);
+    }
+  }
+
+  .total-row {
+    background-color: #f8f8f8;
+    font-weight: bold;
+  }
+}
+
+.counters-container {
+  padding: 20rpx;
+  background-color: #fff;
+  width: 100%; // 确保宽度与表格一致
+
+  .counters-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 20rpx;
+  }
+
+  .counter-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 20rpx;
+    background-color: #f8f8f8;
+    border-radius: 10rpx;
+
+    .counter-controls {
+      display: flex;
+      align-items: center;
+      gap: 20rpx;
+
+      button {
+        min-width: 60rpx;
+        height: 60rpx;
+        line-height: 60rpx;
+        padding: 0;
+        margin: 0;
+        font-size: 24rpx;
+      }
     }
   }
 }
@@ -324,69 +460,6 @@ export default {
 
     &:disabled {
       background-color: #ccc;
-    }
-  }
-}
-
-.counter-row {
-  display: flex;
-  border-bottom: 1px solid #ddd;
-  background-color: #f8f8f8;
-  
-  .counter-container {
-    display: flex;
-    flex-wrap: wrap;
-    padding: 10rpx;
-    
-    .counter-item {
-      width: 50%;
-      display: flex;
-      align-items: center;
-      padding: 10rpx;
-      box-sizing: border-box;
-      
-      &.even-row {
-        border-right: 1px solid #eee;
-      }
-      
-      .counter-name {
-        flex: 1;
-        padding-right: 10rpx;
-      }
-      
-      .boolean-counter {
-        width: 80rpx;
-        height: 50rpx;
-        line-height: 50rpx;
-        text-align: center;
-        background-color: #ddd;
-        border-radius: 25rpx;
-        
-        &.active {
-          background-color: #007AFF;
-          color: white;
-        }
-      }
-      
-      .number-counter {
-        display: flex;
-        align-items: center;
-        
-        .counter-btn {
-          width: 50rpx;
-          height: 50rpx;
-          line-height: 50rpx;
-          text-align: center;
-          background-color: #007AFF;
-          color: white;
-          border-radius: 25rpx;
-        }
-        
-        .counter-value {
-          width: 60rpx;
-          text-align: center;
-        }
-      }
     }
   }
 }
