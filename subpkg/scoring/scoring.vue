@@ -9,7 +9,10 @@
           <view class="header-cell round-col">轮次</view>
           <view v-for="(player, index) in players" :key="player.id" class="header-cell">
             <template v-if="editingIndex !== index">
-              <text @click="startEdit(index)">{{ player.name }}</text>
+              <text @click="startEdit(index)">
+                {{ player.name }}
+                <text v-if="player.isFirst" class="first-player-flag">🚩</text>
+              </text>
               <text class="delete-player" @click.stop="confirmDeletePlayer(index)">×</text>
             </template>
             <input v-else class="name-input" v-model="players[index].name" @blur="finishEdit" @confirm="finishEdit"
@@ -37,9 +40,10 @@
 
       
     <!-- 计数器和规则区域 -->
-    <view class="counters-and-rules" v-if="scoringRules.counters && scoringRules.counters.length">
-      <!-- 计数器部分 -->
+    <view class="counters-and-rules">
+      <!-- 计数器 先手 RESET -->
       <view class="counters-grid">
+        <!-- 计数器 -->
         <view v-for="(counter, index) in scoringRules.counters" :key="index" class="counter-item">
           <text>{{ counter.name }}</text>
           <template v-if="counter.type === 'boolean'">
@@ -52,19 +56,50 @@
               <button @click="incrementCounter(index)">+</button>
             </view>
           </template>
+          <template v-else-if="counter.type === '2^count'">
+            <view class="counter-controls">
+              <text>{{ counter.value }}</text>
+              <button @click="increment2TimesCounter(index)">x2</button>
+            </view>
+          </template>
+        </view>
+        <view class="counter-item" v-if="scoringRules.counter && scoringRules.counter.length">
+          <text>重置计数</text>
+          <view class="counter-controls">
+            <button @click="resetAllCounters">Reset</button>
+          </view>
+        </view>
+        <view class="counter-item">
+          <text>决定先手</text>
+          <view class="counter-controls">
+            <button @click="rollFirstPlayer">Roll</button>
+          </view>
         </view>
       </view>
 
 
-      <view class="scoring-rules">
+      <view class="scoring-rules" v-if="scoringRules.content && scoringRules.content.length">
         <block v-for="(section, index) in scoringRules.content" :key="index">
-          <template v-if="section.isScoring">
+          <template v-if="section.isScoring === true">
             <view class="rule-title" v-if="section.type === 'title'">{{ section.content }}</view>
-            <view class="rule-text" v-if="section.type === 'text'">{{ section.content }}</view>
+            <view class="rule-text" v-if="section.type === 'text'">
+              <template v-for="(part, pIndex) in parseBoldText(section.content)" :key="pIndex">
+                <text :class="{ 'bold': part.bold }">{{ part.text }}</text>
+              </template>
+            </view>
+            <view class="rule-list" v-if="section.type === 'list'">
+              <view v-for="(item, i) in section.items" :key="i" class="list-item">
+                • <template v-for="(part, pIndex) in parseBoldText(item)" :key="pIndex">
+                  <text :class="{ 'bold': part.bold }">{{ part.text }}</text>
+                </template>
+              </view>
+            </view>
           </template>
         </block>
       </view>
     </view>
+
+    <view class="bottom-space"></view>
     
 
     <!-- 按钮组 -->
@@ -126,6 +161,35 @@ export default {
       if (this.scoringRules.counters[index].value > 0) {
         this.scoringRules.counters[index].value--;
       }
+    },
+
+    increment2TimesCounter(index) {
+      if (this.scoringRules.counters[index].value < 9999) {
+        this.scoringRules.counters[index].value *= 2;
+      }
+    },
+
+    resetAllCounters() {
+      this.scoringRules.counters.forEach(counter => {
+        if (counter.type === 'boolean') {
+          counter.value = false;
+        } else if (counter.type === 'count') {
+          counter.value = 0;
+        } else if (counter.type === '2^count') {
+          counter.value = 1;
+        }
+      });
+    },
+
+    rollFirstPlayer() {
+      this.players.forEach(player => player.isFirst = false);
+      const randomIndex = Math.floor(Math.random() * this.players.length);
+      this.players[randomIndex].isFirst = true;
+
+      uni.showToast({
+          title: `${this.players[randomIndex].name}先手`,
+          icon: 'none'
+        });
     },
 
     addPlayer() {
@@ -222,6 +286,34 @@ export default {
         };
       }
     },
+
+    parseBoldText(text) {
+      const parts = [];
+      const regex = /\*\*(.*?)\*\*/g;
+      let lastIndex = 0;
+      let match;
+
+      while ((match = regex.exec(text)) !== null) {
+        if (match.index > lastIndex) {
+          parts.push({
+            text: text.substring(lastIndex, match.index),
+            bold: false
+          });
+        }
+        parts.push({
+          text: match[1],
+          bold: true
+        });
+        lastIndex = regex.lastIndex;
+      }
+      if (lastIndex < text.length) {
+        parts.push({
+          text: text.substring(lastIndex),
+          bold: false
+        });
+      }
+      return parts;
+    }
   },
 
   onLoad(options) {
@@ -380,7 +472,7 @@ export default {
 
   .scoring-rules {
     border-top: 1px solid #eee;
-    // padding-top: 20rpx;
+    padding: 0 20rpx;
 
     .rule-title {
       font-size: 32rpx;
@@ -397,7 +489,30 @@ export default {
       text-align: justify;
       white-space: pre-wrap;
     }
+
+    .rule-list {
+      margin: 20rpx 0;
+      
+      .list-item {
+        font-size: 28rpx;
+        color: #666;
+        line-height: 1.6;
+        margin: 10rpx 0;
+        padding-left: 20rpx;
+        text-align: justify;
+      }
+
+      .bold {
+        font-weight: bold;
+        font-size: inherit;
+      }
+    }
   }
+}
+
+.bottom-space {
+  height: 120rpx;
+  width: 100%;
 }
 
 .button-group {
@@ -414,7 +529,8 @@ export default {
 }
 
 .button-group {
-  padding: 20rpx 0;
+  padding-top: 20rpx;
+  padding-bottom: 40rpx;
   display: flex;
   justify-content: space-around;
   background-color: #fff;
@@ -440,5 +556,9 @@ export default {
       background-color: #ccc;
     }
   }
+}
+
+.bold {
+  font-weight: bold;
 }
 </style>
