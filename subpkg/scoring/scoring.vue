@@ -75,6 +75,12 @@
             <button @click="rollFirstPlayer">Roll</button>
           </view>
         </view>
+        <view class="counter-item">
+          <text>清空计数器</text>
+          <view class="counter-controls">
+            <button @click="resetScore">Reset</button>
+          </view>
+        </view>
       </view>
 
 
@@ -192,6 +198,21 @@ export default {
         });
     },
 
+    resetScore() {
+      uni.showModal({
+        content: '确定要清空计分吗？',
+        success: (res) => {
+          if (res.confirm) {
+            this.scores = [new Array(this.players.length).fill('')];
+            uni.showToast({
+              title: `计分已清空`,
+              icon: 'none'
+            });
+          }
+        }
+      });
+    },
+
     addPlayer() {
       if (this.players.length < this.maxPlayers) {
         const newPlayerNum = this.players.length + 1;
@@ -210,6 +231,7 @@ export default {
             }
           });
         }
+        this.saveData();
       } else {
         uni.showToast({
           title: `最多只能添加${this.maxPlayers}个玩家`,
@@ -234,6 +256,7 @@ export default {
         this.players.splice(index, 1);
         // 删除分数
         this.scores.forEach(row => row.splice(index, 1));
+        this.saveData();
       }
     },
 
@@ -313,13 +336,39 @@ export default {
         });
       }
       return parts;
+    },
+
+    calculateTotal() {
+      this.saveData();
+    },
+
+    saveData() {
+      uni.setStorageSync(`scoring_${this.type}_${this.ruleId}`, {
+        players: this.players,
+        scores: this.scores
+      });
+    },
+
+    loadData() {
+      const data = uni.getStorageSync(`scoring_${this.type}_${this.ruleId}`);
+      if (data) {
+        this.players = data.players;
+        this.scores = data.scores;
+      }
     }
   },
 
   onLoad(options) {
     this.type = options.type;
     this.ruleId = options.ruleId;
-    this.initData();
+    this.loadData();
+    if (!this.players.length) {
+      this.initData();
+    }
+  },
+
+  onUnload() {
+    this.saveData();
   }
 }
 </script>
@@ -333,6 +382,8 @@ export default {
 .table-container {
   width: 100%;
   overflow: auto;
+  height: 60vh;
+  position: relative;
 }
 
 .table {
@@ -380,7 +431,9 @@ export default {
     background-color: #f5f5f5;
     position: sticky;
     top: 0;
-    z-index: 1;
+    z-index: 10;
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
 
     .header-cell {
       @extend %cell-base;
