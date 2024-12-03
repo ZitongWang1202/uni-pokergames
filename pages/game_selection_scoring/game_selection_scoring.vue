@@ -1,6 +1,15 @@
 <template>
 
   <view>
+    <!-- 添加滚动标语 -->
+    <view class="notice-bar">
+      <view class="notice-content">
+        <text>提倡文明娱乐，禁止赌博活动</text>
+        <text class="spacer">　　　　</text>
+        <text>提倡文明娱乐，禁止赌博活动</text>
+      </view>
+    </view>
+
     <view class="container">
       <!-- 左边部分，Flex 布局 -->
       <view class="left">
@@ -16,12 +25,20 @@
       <view class="right">
         <view v-for="(item, index) in currentGridItems" :key="index"
           :class="['grid-item', { 'span-two': index === 0 }]"
-          @click="navigateToRules(item)">
+          @click="navigateToScoring(item)">
           {{ item.name }}
         </view>
       </view>
     </view>
+
+    <!-- 添加悬浮按钮 -->
+    <view class="floating-circle-button" @click="navigateToEmptyScoring">
+      <text>空白\n模板</text>
+    </view>
   </view>
+
+
+  
 </template>
 
 <script>
@@ -72,9 +89,14 @@ export default {
     switchPlayer(index) {
       this.currentIndex = index;
     },
-    navigateToRules(item) {
+    navigateToScoring(item) {
       uni.navigateTo({
         url: `/subpkg/scoring/scoring?type=${item.type}&ruleId=${item.ruleId}`
+      });
+    },
+    navigateToEmptyScoring() {
+      uni.navigateTo({
+        url: `/subpkg/scoring/scoring?type=&ruleId=`
       });
     }
   }
@@ -85,7 +107,7 @@ export default {
 .container {
   display: flex;
   width: 100%;
-  height: 100vh;
+  height: calc(100vh - 60rpx);
   flex-direction: row;
 }
 
@@ -131,6 +153,65 @@ export default {
 
   &.span-two {
     grid-column: span 2;
+  }
+}
+
+// 悬浮按钮样式
+.floating-circle-button {
+  position: fixed;
+  right: 40rpx;
+  bottom: 140rpx;
+  width: 160rpx;
+  height: 160rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: #4CAF50;
+  color: #fff;
+  border-radius: 50%;  // 保持圆形
+  font-size: 32rpx;  // 与页面右侧文字大小一致
+  box-shadow: 0 4rpx 12rpx rgba(0, 0, 0, 0.2);
+  z-index: 999;
+  
+  text {
+    text-align: center;
+    line-height: 1.2;  // 调整行高
+    white-space: pre-wrap;  // 保持换行符
+  }
+
+  &:active {
+    opacity: 0.8;
+  }
+}
+
+// 添加滚动标语样式
+.notice-bar {
+  width: 100%;
+  height: 60rpx;
+  background-color: #FFF7E6;
+  overflow: hidden;
+  position: relative;
+  
+  .notice-content {
+    position: absolute;
+    white-space: nowrap;
+    animation: scrollText 20s linear infinite;
+    color: #FA541C;
+    line-height: 60rpx;
+    font-size: 28rpx;
+    
+    .spacer {
+      display: inline-block;
+    }
+  }
+}
+
+@keyframes scrollText {
+  0% {
+    transform: translateX(100%);
+  }
+  100% {
+    transform: translateX(-100%);
   }
 }
 </style>

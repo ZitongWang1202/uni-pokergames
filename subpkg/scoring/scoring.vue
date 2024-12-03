@@ -343,14 +343,22 @@ export default {
     },
 
     saveData() {
-      uni.setStorageSync(`scoring_${this.type}_${this.ruleId}`, {
+      const storageKey = this.type && this.ruleId ? 
+        `scoring_${this.type}_${this.ruleId}` : 
+        'scoring_empty_template';
+        
+      uni.setStorageSync(storageKey, {
         players: this.players,
         scores: this.scores
       });
     },
 
     loadData() {
-      const data = uni.getStorageSync(`scoring_${this.type}_${this.ruleId}`);
+      const storageKey = this.type && this.ruleId ? 
+        `scoring_${this.type}_${this.ruleId}` : 
+        'scoring_empty_template';
+        
+      const data = uni.getStorageSync(storageKey);
       if (data) {
         this.players = data.players;
         this.scores = data.scores;
@@ -361,9 +369,35 @@ export default {
   onLoad(options) {
     this.type = options.type;
     this.ruleId = options.ruleId;
-    this.loadData();
+    
+    // 1. 检查是否是空白页面（没有type和ruleId）
+    if (this.type && this.ruleId) {
+      // 有游戏类型和规则ID时，初始化规则数据
+      const gameRule = ruleData[this.type][this.ruleId];
+      if (gameRule) {
+        this.scoringRules = {
+          content: gameRule.sections || [],
+          counters: gameRule.counters || []
+        };
+      }
+      // 加载已保存的数据
+      this.loadData();
+    } else {
+      // 空白页面时，初始化空的规则数据
+      this.scoringRules = {
+        content: [],
+        counters: []
+      };
+    }
+    
+    // 如果没有玩家数据，则初始化
     if (!this.players.length) {
-      this.initData();
+      // 空白页面时只添加一个玩家
+      if (!this.type) {
+        this.addPlayer();
+      } else {
+        this.initData();
+      }
     }
   },
 
@@ -406,10 +440,6 @@ export default {
     padding: 20rpx;
     text-align: center;
     border-right: 1px solid #ddd;
-
-    &:last-child {
-      border-right: 1px solid #ddd;
-    }
   }
 
   .table-row {

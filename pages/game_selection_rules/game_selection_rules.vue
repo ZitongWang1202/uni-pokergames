@@ -1,6 +1,14 @@
 <template>
 
   <view>
+    <!-- 添加滚动标语 -->
+    <view class="notice-bar">
+      <view class="notice-content">
+        <text>提倡文明娱乐，禁止赌博活动</text>
+        <text class="spacer">　　　　</text>
+        <text>提倡文明娱乐，禁止赌博活动</text>
+      </view>
+    </view>
     <view class="container">
       <!-- 左边部分，Flex 布局 -->
       <view class="left">
@@ -131,6 +139,36 @@ export default {
 
   &.span-two {
     grid-column: span 2;
+  }
+}
+
+.notice-bar {
+  width: 100%;
+  height: 60rpx;
+  background-color: #FFF7E6;
+  overflow: hidden;
+  position: relative;
+  
+  .notice-content {
+    position: absolute;
+    white-space: nowrap;
+    animation: scrollText 20s linear infinite;
+    color: #FA541C;
+    line-height: 60rpx;
+    font-size: 28rpx;
+    
+    .spacer {
+      display: inline-block;
+    }
+  }
+}
+
+@keyframes scrollText {
+  0% {
+    transform: translateX(100%);
+  }
+  100% {
+    transform: translateX(-100%);
   }
 }
 </style>

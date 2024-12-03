@@ -284,6 +284,7 @@ export default {
   &-table {
     margin: 20rpx 0;
     border: 2rpx solid #ddd;
+    border-right: none;
   }
 
   &-image {
