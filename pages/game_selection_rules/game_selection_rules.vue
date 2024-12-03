@@ -95,6 +95,8 @@ export default {
   width: 100%;
   height: 100vh;
   flex-direction: row;
+  box-sizing: border-box;
+  border-top: 1px solid #ccc;
 }
 
 .left {
